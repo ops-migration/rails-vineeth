@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# bin/dev — start all development processes (Thruster + TailwindCSS watcher)
+# Requires: foreman  (gem install foreman)
+
+if ! command -v foreman &> /dev/null; then
+  echo "Foreman not found. Install with: gem install foreman"
+  exit 1
+fi
+
+exec foreman start -f Procfile.dev "$@"

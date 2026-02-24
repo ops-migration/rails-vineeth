@@ -1,0 +1,84 @@
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-value"><%= @stats[:total] %></div>
+    <div class="stat-label">Total Tasks</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" style="color:#d97706;"><%= @stats[:pending] %></div>
+    <div class="stat-label">Pending</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" style="color:#2563eb;"><%= @stats[:in_progress] %></div>
+    <div class="stat-label">In Progress</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" style="color:#16a34a;"><%= @stats[:completed] %></div>
+    <div class="stat-label">Completed</div>
+  </div>
+</div>
+
+<div class="page-header">
+  <h1 class="page-title">Tasks</h1>
+  <div class="filter-bar">
+    <%= link_to "All",         tasks_path,                      class: "filter-btn #{params[:status].nil? ? 'active' : ''}" %>
+    <%= link_to "Pending",     tasks_path(status: "pending"),    class: "filter-btn #{params[:status] == 'pending' ? 'active' : ''}" %>
+    <%= link_to "In Progress", tasks_path(status: "in_progress"),class: "filter-btn #{params[:status] == 'in_progress' ? 'active' : ''}" %>
+    <%= link_to "Completed",   tasks_path(status: "completed"),  class: "filter-btn #{params[:status] == 'completed' ? 'active' : ''}" %>
+  </div>
+</div>
+
+<div class="card" style="padding:0; overflow:hidden;">
+  <% if @tasks.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>Status</th>
+          <th>Due Date</th>
+          <th>Created</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @tasks.each do |task| %>
+          <tr>
+            <td>
+              <div style="font-weight:600;"><%= task.title %></div>
+              <% if task.description.present? %>
+                <div style="color:#9ca3af; font-size:.75rem; margin-top:.25rem;"><%= truncate(task.description, length: 60) %></div>
+              <% end %>
+            </td>
+            <td>
+              <span class="badge badge-<%= task.status %>"><%= task.status.humanize %></span>
+            </td>
+            <td><%= task.due_date&.strftime("%b %d, %Y") || "—" %></td>
+            <td><%= task.created_at.strftime("%b %d") %></td>
+            <td style="text-align:right;">
+              <%= link_to "Edit", edit_task_path(task), class: "btn btn-ghost", style: "font-size:.8rem; padding:.3rem .75rem; margin-right:.5rem;" %>
+              <%= button_to "Delete", task_path(task), method: :delete,
+                  class: "btn btn-danger", style: "font-size:.8rem; padding:.3rem .75rem;",
+                  data: { turbo_confirm: "Delete '#{task.title}'?" } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div style="text-align:center; padding:4rem 2rem; color:#9ca3af;">
+      <p style="font-size:1.125rem; font-weight:600; color:#374151;">No tasks found</p>
+      <p style="margin:.5rem 0 1.5rem;">Get started by creating your first task.</p>
+      <%= link_to "New Task", new_task_path, class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<div class="api-box">
+  <h3>REST API Endpoints</h3>
+  <div class="api-grid">
+    <div class="api-endpoint"><span class="method-get">GET</span> /api/v1/tasks</div>
+    <div class="api-endpoint"><span class="method-get">GET</span> /api/v1/tasks/:id</div>
+    <div class="api-endpoint"><span class="method-post">POST</span> /api/v1/tasks</div>
+    <div class="api-endpoint"><span class="method-patch">PATCH</span> /api/v1/tasks/:id</div>
+    <div class="api-endpoint"><span class="method-delete">DELETE</span> /api/v1/tasks/:id</div>
+  </div>
+</div>

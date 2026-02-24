@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TaskManager</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body>
+    <nav style="background:#4338ca; padding:.75rem 0; margin-bottom:2rem;">
+      <div class="container" style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:.75rem;">
+          <div style="background:white; border-radius:.5rem; padding:.375rem;">
+            <svg style="width:1.5rem;height:1.5rem;color:#4338ca;" fill="none" stroke="#4338ca" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+            </svg>
+          </div>
+          <%= link_to "TaskManager", root_path, style: "color:white; font-weight:700; font-size:1.125rem;" %>
+        </div>
+        <div style="display:flex; gap:1rem; align-items:center;">
+          <%= link_to "All Tasks", tasks_path, style: "color:#c7d2fe; font-size:.875rem;" %>
+          <%= link_to "New Task", new_task_path, style: "background:white; color:#4338ca; padding:.375rem .875rem; border-radius:.5rem; font-size:.875rem; font-weight:600;" %>
+          <a href="/api/v1/tasks" target="_blank" style="color:#c7d2fe; font-size:.875rem;">API</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <% if notice %>
+        <div class="flash-notice"><%= notice %></div>
+      <% end %>
+      <% if alert %>
+        <div class="flash-alert"><%= alert %></div>
+      <% end %>
+
+      <%= yield %>
+    </div>
+
+    <footer style="text-align:center; padding:2rem; margin-top:3rem; color:#9ca3af; font-size:.875rem; border-top:1px solid #e5e7eb;">
+      Built with <strong>Ruby on Rails 7</strong> · <strong>Thruster</strong> · <strong>PostgreSQL</strong>
+    </footer>
+  </body>
+</html>

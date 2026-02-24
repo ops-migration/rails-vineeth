@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+#
+# bin/thrust — thin wrapper around the Thruster gem executable.
+# Thruster is an HTTP/2 accelerator that sits in front of Puma.
+#
+# Usage (in Dockerfile CMD):
+#   ./bin/thrust ./bin/rails server
+#
+# Thruster reads:
+#   THRUSTER_HTTP_PORT   (default 80)  — outer port
+#   THRUSTER_TARGET_PORT (default 3000) — Puma's port
+#
+require "rubygems"
+
+thruster_bin = Gem.bin_path("thruster", "thrust")
+exec "$(dirname "$0")/bundle" exec thrust "$@"

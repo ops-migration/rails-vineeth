@@ -1,0 +1,5 @@
+# Procfile.dev — used by `bin/dev` (foreman / overmind)
+# Starts Thruster + Rails server and TailwindCSS watcher in parallel.
+
+web: bin/rails server -p 3000
+css: bin/rails tailwindcss:watch

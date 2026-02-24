@@ -1,0 +1,15 @@
+#testing cloud fromation nested stack.
+AWSTemplateFormatVersion: 2010-09-09
+Description: Top-level stack template that deploys a nested stack
+Resources:
+  NestedStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.us-east-1.amazonaws.com/ecs-migration-cloud-formation-templates/s3.yaml
+      Parameters:
+        BucketName: app-1-bucket-12022026
+Outputs:
+  NestedStackLambdaArn:
+    Description: ARN of the Lambda function from nested stack
+    Value: !GetAtt NestedStack.Outputs.LambdaArn
+
