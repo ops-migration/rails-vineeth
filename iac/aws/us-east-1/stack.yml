@@ -3,9 +3,28 @@ Description: 'Nested ECR Repository for Docker Images'
 
 # ─── Grouped common parameters ────────────────────────────────────────────────
 Parameters:
+  RailsImage:
+    Type: String                          # always required
+
+  NginxImage:
+    Type: String
+    Default: ''                           # optional — only used in double mode
+
+  CommitHash:
+    Type: String
+    Default: ''
+    
   Environment:
     Type: String
     Default: dev
+
+  ALBListenerArn:
+    Type: String
+    Default: arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/my-alb/abc123/def456
+
+  ECSClusterName:
+    Type: String
+    Default: my-existing-ecs-cluster
 
   AppName:
     Type: String
@@ -24,26 +43,12 @@ Parameters:
   VpcId:
     Type: AWS::EC2::VPC::Id
     Default: vpc-0abc123456789def0
-
-  ALBListenerArn:
-    Type: String
-    Default: arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/my-alb/abc123/def456
-
-  ECSClusterName:
-    Type: String
-    Default: my-existing-ecs-cluster
-
-  RailsImage:
-    Type: String
-    Default: 123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp-rails:latest
-
-  NginxImage:
-    Type: String
-    Default: 123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp-nginx:latest
-
+    
+Conditions:
+  IsDoubleContainer: !Not [!Equals [!Ref NginxImage, '']]
 # ─── Resources ────────────────────────────────────────────────────────────────
 Resources:
-
+# ─────── ECR ────────────────────────────────────────────────────────
   FunctionManagerECRStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -58,6 +63,8 @@ Resources:
           Value: !Ref Environment
         - Key: ManagedBy
           Value: CloudFormation
+
+# ─────── Secret Manager ────────────────────────────────────────────────────────
 
   FunctionManagerSecretsManagerStack:
     Type: AWS::CloudFormation::Stack
@@ -74,6 +81,8 @@ Resources:
         - Key: ManagedBy
           Value: CloudFormation
 
+# ─────── S3 ────────────────────────────────────────────────────────
+
   FunctionManagerS3Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -88,6 +97,8 @@ Resources:
           Value: !Ref Environment
         - Key: ManagedBy
           Value: CloudFormation
+
+# ─────── IAM Role ────────────────────────────────────────────────────────
 
   FunctionManagerIAMStack:
     Type: AWS::CloudFormation::Stack
@@ -107,6 +118,8 @@ Resources:
             Parameters:
               Location: !Sub '${PolicyBucketUrl}/iam-task-policy.json'
 
+# ─────── Target Group ────────────────────────────────────────────────────────
+
   FunctionManagerTargetGroupStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -119,38 +132,64 @@ Resources:
         HostHeader: !Sub '${AppName}.example.com'
         TargetPort: 80   # 80 for nginx (double), 3000 for rails (single)
 
+# ─────── Task Definition Double stack ────────────────────────────────────────────────────────
+
   FunctionManagerTaskDefDoubleStack:
+      Type: AWS::CloudFormation::Stack
+      Condition: IsDoubleContainer
+      DependsOn: FunctionManagerIAMStack
+      Properties:
+        TemplateURL: !Sub '${TemplateBucketUrl}/rails-nginx-tf.yaml'
+        Parameters:
+          Environment: !Ref Environment
+          AppName: !Ref AppName
+          RailsImage: !Ref RailsImage
+          NginxImage: !Ref NginxImage
+          RailsContainerPort: 3000
+          NginxContainerPort: 80
+          TaskCPU: 512
+          TaskMemory: 1024
+          TaskRoleArn: !GetAtt FunctionManagerIAMStack.Outputs.TaskRoleArn
+          ExecutionRoleArn: !GetAtt FunctionManagerIAMStack.Outputs.ExecutionRoleArn
+
+# ─────── Task Definition Single stack ────────────────────────────────────────────────────────
+
+  FunctionManagerTaskDefSingleStack:
     Type: AWS::CloudFormation::Stack
+    Condition: !Not [IsDoubleContainer]
     DependsOn: FunctionManagerIAMStack
     Properties:
-      TemplateURL: !Sub '${TemplateBucketUrl}/rails-nginx-tf.yaml'
+      TemplateURL: !Sub '${TemplateBucketUrl}/rails-tf.yaml'
       Parameters:
         Environment: !Ref Environment
         AppName: !Ref AppName
         RailsImage: !Ref RailsImage
-        NginxImage: !Ref NginxImage
         RailsContainerPort: 3000
-        NginxContainerPort: 80
         TaskCPU: 512
         TaskMemory: 1024
         TaskRoleArn: !GetAtt FunctionManagerIAMStack.Outputs.TaskRoleArn
         ExecutionRoleArn: !GetAtt FunctionManagerIAMStack.Outputs.ExecutionRoleArn
 
+# ─────── ECS Service ────────────────────────────────────────────────────────
+
   FunctionManagerECSServiceStack:
     Type: AWS::CloudFormation::Stack
     DependsOn:
       - FunctionManagerTargetGroupStack
-      - FunctionManagerTaskDefDoubleStack
     Properties:
       TemplateURL: !Sub '${TemplateBucketUrl}/ecs-service.yaml'
       Parameters:
         Environment: !Ref Environment
         AppName: !Ref AppName
         ECSClusterName: !Ref ECSClusterName
-        TaskDefinitionArn: !GetAtt FunctionManagerTaskDefDoubleStack.Outputs.TaskDefinitionArn
+        # Pick the correct task def ARN based on mode
+        TaskDefinitionArn: !If
+          - IsDoubleContainer
+          - !GetAtt FunctionManagerTaskDefDoubleStack.Outputs.TaskDefinitionArn
+          - !GetAtt FunctionManagerTaskDefSingleStack.Outputs.TaskDefinitionArn
         TargetGroupArn: !GetAtt FunctionManagerTargetGroupStack.Outputs.TargetGroupArn
-        ContainerName: nginx   # change to rails if using single container
-        ContainerPort: 80      # change to 3000 if using single container
+        ContainerName: !If [IsDoubleContainer, 'nginx', 'rails']
+        ContainerPort: !If [IsDoubleContainer, '80', '3000']
         DesiredCount: 1
         ScalingMinCapacity: 1
         ScalingMaxCapacity: 4
