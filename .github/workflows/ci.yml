@@ -21,9 +21,11 @@ jobs:
     with:
       ecr-repository: "app-1"
       aws-region: "us-east-1"
-      target-branch: "feature-dev-i"
+      target-branch: "dev-i"
       sonar-enabled: true
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+    
