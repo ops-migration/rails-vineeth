@@ -1,5 +1,4 @@
 {
-  "rails_image_uri": "123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp-rails:abc1234",
-  "nginx_image_uri": "123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp-nginx:abc1234",
-  "commit_hash": "abc1234"
+  "rails_image_uri": "533267275979.dkr.ecr.us-east-1.amazonaws.com/app-1:e34414ff1cc4f837800708e9fa57142d76624c9c",
+  "commit_hash": "e34414ff1cc4f837800708e9fa57142d76624c9c"
 }
