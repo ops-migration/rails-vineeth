@@ -20,12 +20,12 @@ Parameters:
 
   ALBListenerArn:
     Type: String
-    Default: arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/my-alb/abc123/def456
+    Default: arn:aws:elasticloadbalancing:us-east-1:106237071060:listener/app/dev-alb/cdab5a86b3a4a97d/4a4e9d7944e40756
 
   ECSClusterName:
     Type: String
-    Default: my-existing-ecs-cluster
-
+    Default: dev-ecs-cluster
+  
   AppName:
     Type: String
     Default: function-manager
@@ -33,16 +33,16 @@ Parameters:
   # Single source-of-truth for all nested template URLs
   TemplateBucketUrl:
     Type: String
-    Default: https://s3.amazonaws.com/my-cfn-templates-bucket/templates
+    Default: https://ecs-migration-cloud-formation-templates.s3.us-east-1.amazonaws.com/templates
 
   # Single source-of-truth for all nested policy file URLs
-  PolicyBucketUrl:
-    Type: String
-    Default: https://s3.amazonaws.com/my-cfn-templates-bucket/policies
+  # PolicyBucketUrl:
+  #   Type: String
+  #   Default: https://ecs-migration-cloud-formation-templates.s3.us-east-1.amazonaws.com/templates/policies
 
   VpcId:
     Type: AWS::EC2::VPC::Id
-    Default: vpc-0abc123456789def0
+    Default: vpc-04c6d87c521fddb25
     
 Conditions:
   IsDoubleContainer: !Not [!Equals [!Ref NginxImage, '']]
