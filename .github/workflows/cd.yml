@@ -6,9 +6,8 @@ on:
       - dev-i
 
 permissions:
-  issues: write
-  contents: none
-  id-token: none
+  contents: read
+  id-token: write
   
 jobs:
   deploy-qa:
