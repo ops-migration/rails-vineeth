@@ -27,5 +27,3 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-
-    
