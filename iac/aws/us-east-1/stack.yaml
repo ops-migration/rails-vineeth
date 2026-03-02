@@ -197,3 +197,5 @@ Resources:
         CPUScaleInThreshold: 30
         MemoryScaleOutThreshold: 75
         MemoryScaleInThreshold: 40
+
+        
