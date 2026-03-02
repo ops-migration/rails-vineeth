@@ -36,9 +36,9 @@ Parameters:
     Default: https://ecs-migration-cloud-formation-templates.s3.us-east-1.amazonaws.com/templates
 
   # Single source-of-truth for all nested policy file URLs
-  # PolicyBucketUrl:
-  #   Type: String
-  #   Default: https://ecs-migration-cloud-formation-templates.s3.us-east-1.amazonaws.com/templates/policies
+  PolicyBucketUrl:
+    Type: String
+    Default: https://ecs-migration-cloud-formation-templates.s3.us-east-1.amazonaws.com/templates/policies
 
   VpcId:
     Type: AWS::EC2::VPC::Id
