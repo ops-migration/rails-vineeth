@@ -7,8 +7,8 @@ on:
 
 permissions:
   issues: write
-  contents: read
-  id-token: write
+  contents: none
+  id-token: none
   
 jobs:
   deploy-qa:
