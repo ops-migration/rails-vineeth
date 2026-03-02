@@ -4,8 +4,11 @@ on:
   push:
     branches:
       - dev-i
+
 permissions:
-  id-token: none
+  issues: write
+  contents: read
+  id-token: write
   
 jobs:
   deploy-qa:
