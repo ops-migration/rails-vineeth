@@ -9,5 +9,4 @@ jobs:
   deploy-qa:
     uses: ops-migration/central-shared-workflow/.github/workflows/cd-workflow.yml@main
     with:
-      aws-region: "us-east-1"
       cf-stack-name: "dev-stack"
