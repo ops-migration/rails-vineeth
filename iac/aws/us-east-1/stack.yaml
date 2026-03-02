@@ -46,6 +46,7 @@ Parameters:
     
 Conditions:
   IsDoubleContainer: !Not [!Equals [!Ref NginxImage, '']]
+  IsSingleContainer: !Not [!Condition IsDoubleContainer]
 # ─── Resources ────────────────────────────────────────────────────────────────
 Resources:
 # ─────── ECR ────────────────────────────────────────────────────────
