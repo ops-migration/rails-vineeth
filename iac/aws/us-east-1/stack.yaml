@@ -156,7 +156,7 @@ Resources:
 
   FunctionManagerTaskDefSingleStack:
     Type: AWS::CloudFormation::Stack
-    Condition: !Not [IsDoubleContainer]
+    Condition: IsSingleContainer
     DependsOn: FunctionManagerIAMStack
     Properties:
       TemplateURL: !Sub '${TemplateBucketUrl}/rails-tf.yaml'
