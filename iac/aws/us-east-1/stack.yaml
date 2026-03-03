@@ -99,7 +99,7 @@ Resources:
         TaskCPU: 512
         TaskMemory: 1024
         TaskRoleArn: !GetAtt FunctionManagerIAMStack.Outputs.TaskRoleArn
-        ExecutionRoleArn: !GetAtt FunctionManagerIAMStack.Outputs.ExecutionRoleArn
+        ExecutionRoleArn: "arn:aws:iam::106237071060:role/service-role/codebuild-ecs-workflow-service-role"
 
   # ─────── Task Definition Single stack ─────────────────────────────
   FunctionManagerTaskDefSingleStack:
@@ -116,8 +116,7 @@ Resources:
         TaskCPU: 512
         TaskMemory: 1024
         TaskRoleArn: !GetAtt FunctionManagerIAMStack.Outputs.TaskRoleArn
-        ExecutionRoleArn: !GetAtt FunctionManagerIAMStack.Outputs.ExecutionRoleArn
-
+        ExecutionRoleArn: "arn:aws:iam::106237071060:role/dev-myapp-execution-role"
   # ─────── ECS Service ──────────────────────────────────────────────
   FunctionManagerECSServiceStack:
     Type: AWS::CloudFormation::Stack
