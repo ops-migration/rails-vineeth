@@ -4,7 +4,7 @@ Description: 'Nested ECR / ECS stack for function-manager'
 # ─── Parameters ───────────────────────────────────────────────────────────────
 Parameters:
   RailsImage:
-    Type: String                          # always required
+    Type: String                          # always required 
 
   NginxImage:
     Type: String
@@ -150,4 +150,4 @@ Resources:
         - Key: ManagedBy
           Value: CloudFormation
           
- # ────────────────────────────────────────────────────
+ # ──────────────────────────────────────────────────────────────────────────────────────────────
