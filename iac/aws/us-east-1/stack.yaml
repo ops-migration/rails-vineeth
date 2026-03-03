@@ -55,9 +55,6 @@ Resources:
   # ─────── IAM Role ─────────────────────────────────────────────────
   FunctionManagerIAMStack:
     Type: AWS::CloudFormation::Stack
-    DependsOn:
-      - FunctionManagerS3Stack
-      - FunctionManagerSecretsManagerStack
     Properties:
       TemplateURL: !Sub '${TemplateBucketUrl}/iam-task.yaml'
       Parameters:
