@@ -51,54 +51,6 @@ Conditions:
 
 # ─── Resources ────────────────────────────────────────────────────────────────
 Resources:
-  # ─────── ECR ────────────────────────────────────────────────────────
-  FunctionManagerECRStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub '${TemplateBucketUrl}/ecr.yaml'
-      Parameters:
-        # Make sure ecr.yaml expects AppName and Environment
-        AppName: !Ref AppName
-        Environment: !Ref Environment
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-${AppName}-ecr'
-        - Key: Environment
-          Value: !Ref Environment
-        - Key: ManagedBy
-          Value: CloudFormation
-
-  # ─────── Secrets Manager ───────────────────────────────────────────
-  FunctionManagerSecretsManagerStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub '${TemplateBucketUrl}/secret-manager.yaml'
-      Parameters:
-        Environment: !Ref Environment
-        AppName: !Ref AppName
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-function-manager'
-        - Key: Environment
-          Value: !Ref Environment
-        - Key: ManagedBy
-          Value: CloudFormation
-
-  # ─────── S3 ────────────────────────────────────────────────────────
-  FunctionManagerS3Stack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub '${TemplateBucketUrl}/s3.yaml'
-      Parameters:
-        BucketNames: !Sub '${Environment}-function-manager'
-        Environment: !Ref Environment
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-function-manager'
-        - Key: Environment
-          Value: !Ref Environment
-        - Key: ManagedBy
-          Value: CloudFormation
 
   # ─────── IAM Role ─────────────────────────────────────────────────
   FunctionManagerIAMStack:
