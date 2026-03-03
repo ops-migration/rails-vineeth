@@ -142,6 +142,9 @@ Resources:
         CPUScaleInThreshold: 30
         MemoryScaleOutThreshold: 75
         MemoryScaleInThreshold: 40
+        VpcSubnetIds: 'subnet-0eabd0999a1e9300b,subnet-03f8f438576701c78'     
+        SecurityGroupIds: 'sg-0b445d36b772f8e1f'  
+ 
       Tags:
         - Key: Name
           Value: !Sub '${Environment}-${AppName}-service'
