@@ -60,11 +60,7 @@ Resources:
       Parameters:
         Environment: !Ref Environment
         AppName: !Ref AppName
-        TaskRolePolicyJson:
-          Fn::Transform:
-            Name: 'AWS::Include'
-            Parameters:
-              Location: !Sub '${PolicyBucketUrl}/iam-task-policy.json'
+        TaskRolePolicyJson: !Sub '${PolicyBucketUrl}/iam-task-policy.json'
 
   # ─────── Target Group ─────────────────────────────────────────────
   FunctionManagerTargetGroupStack:
