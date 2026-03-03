@@ -20,8 +20,8 @@ Parameters:
 
   ALBListenerArn:
     Type: String
-    Default: arn:aws:elasticloadbalancing:us-east-1:106237071060:listener/app/dev-alb/cdab5a86b3a4a97d/4a4e9d7944e40756
-
+    Default: arn:aws:elasticloadbalancing:us-east-1:106237071060:listener/app/dev-alb/ac590c720db36e5e/787eb393f26b305b
+    
   ECSClusterName:
     Type: String
     Default: dev-ecs-cluster
