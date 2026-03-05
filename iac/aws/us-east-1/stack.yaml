@@ -3,46 +3,24 @@ Description: 'Nested ECR / ECS stack for function-manager'
 
 # ─── Parameters ───────────────────────────────────────────────────────────────
 Parameters:
-  RailsImage:
-    Type: String                          # always required 
-
-  NginxImage:
-    Type: String
-    Default: ''                           # optional — only used in double mode
-
-  CommitHash:
-    Type: String
-    Default: ''
-    
   Environment:
     Type: String
     Default: dev
-
-  ALBListenerArn:
-    Type: String
-    Default: arn:aws:elasticloadbalancing:us-east-1:106237071060:listener/app/dev-alb/3e429c9bf4529547/96897f5348b2b11f
-    
-  ECSClusterName:
-    Type: String
-    Default: dev-ecs-cluster
-  
   AppName:
     Type: String
     Default: function-manager
-
-  # Single source-of-truth for all nested template URLs (HTTPS is fine here)
+  RailsImage:
+    Type: String
+  NginxImage:
+    Type: String
+  CommitHash:
+    Type: String
   TemplateBucketUrl:
     Type: String
     Default: https://ecs-migration-cloud-formation-templates.s3.us-east-1.amazonaws.com/templates
-
-  # Single source-of-truth for all nested policy file URLs (must be s3:// for AWS::Include)
   PolicyBucketUrl:
     Type: String
     Default: s3://ecs-migration-cloud-formation-templates/templates/policies
-    
-  VpcId:
-    Type: AWS::EC2::VPC::Id
-    Default: vpc-04c6d87c521fddb25
 
 # ─── Conditions ───────────────────────────────────────────────────────────────
 Conditions:
@@ -51,42 +29,19 @@ Conditions:
 
 # ─── Resources ────────────────────────────────────────────────────────────────
 Resources:
-
-  # ─────── IAM Role ─────────────────────────────────────────────────
-  FunctionManagerIAMStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub '${TemplateBucketUrl}/iam-task.yaml'
-      Parameters:
-        Environment: !Ref Environment
-        AppName: !Ref AppName
-        TaskRolePolicyJson: !Sub '${PolicyBucketUrl}/iam-task-policy.json'
-
-  # ─────── Target Group ─────────────────────────────────────────────
+  # Missing dependency - Add this first
   FunctionManagerTargetGroupStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub '${TemplateBucketUrl}/target-group.yaml'
+      TemplateURL: !Sub '${TemplateBucketUrl}/target-group.yaml'  # Adjust path as needed
       Parameters:
         Environment: !Ref Environment
         AppName: !Ref AppName
-        VpcId: !Ref VpcId
-        ALBListenerArn: !Ref ALBListenerArn
-        HostHeader: !Sub '${AppName}.example.com'
-        TargetPort: 80   # 80 for nginx (double), 3000 for rails (single) – adjust inside nested if needed
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-${AppName}-tg'
-        - Key: Environment
-          Value: !Ref Environment
-        - Key: ManagedBy
-          Value: CloudFormation
 
   # ─────── Task Definition Double stack ─────────────────────────────
   FunctionManagerTaskDefDoubleStack:
     Type: AWS::CloudFormation::Stack
     Condition: IsDoubleContainer
-    DependsOn: FunctionManagerIAMStack
     Properties:
       TemplateURL: !Sub '${TemplateBucketUrl}/rails-nginx-tf.yaml'
       Parameters:
@@ -98,14 +53,13 @@ Resources:
         NginxContainerPort: 80
         TaskCPU: 512
         TaskMemory: 1024
-        TaskRoleArn: !GetAtt FunctionManagerIAMStack.Outputs.TaskRoleArn
-        ExecutionRoleArn: "arn:aws:iam::106237071060:role/service-role/codebuild-ecs-workflow-service-role"
+        TaskRoleArn: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cfn/${Environment}/iam/${AppName}/TaskRoleArn'  # Fixed SSM reference
+        ExecutionRoleArn: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cfn/${Environment}/ecs/TaskExecutionRoleArn'  # Fixed incomplete value
 
   # ─────── Task Definition Single stack ─────────────────────────────
   FunctionManagerTaskDefSingleStack:
     Type: AWS::CloudFormation::Stack
     Condition: IsSingleContainer
-    DependsOn: FunctionManagerIAMStack
     Properties:
       TemplateURL: !Sub '${TemplateBucketUrl}/rails-tf.yaml'
       Parameters:
@@ -115,26 +69,32 @@ Resources:
         RailsContainerPort: 3000
         TaskCPU: 512
         TaskMemory: 1024
-        TaskRoleArn: !GetAtt FunctionManagerIAMStack.Outputs.TaskRoleArn
-        ExecutionRoleArn: "arn:aws:iam::106237071060:role/dev-myapp-execution-role"
+        TaskRoleArn: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cfn/${Environment}/iam/${AppName}/TaskRoleArn'  # Fixed SSM reference
+        ExecutionRoleArn: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cfn/${Environment}/ecs/TaskExecutionRoleArn'  # Fixed SSM reference format
+
   # ─────── ECS Service ──────────────────────────────────────────────
   FunctionManagerECSServiceStack:
     Type: AWS::CloudFormation::Stack
-    DependsOn:
-      - FunctionManagerTargetGroupStack
+    DependsOn: FunctionManagerTargetGroupStack  # Fixed missing dependency
     Properties:
       TemplateURL: !Sub '${TemplateBucketUrl}/ecs-service.yaml'
       Parameters:
         Environment: !Ref Environment
         AppName: !Ref AppName
-        ECSClusterName: !Ref ECSClusterName
+        ECSClusterName: !Sub '{{resolve:ssm:/cfn/${Environment}/ecs/ClusterName:1}}'  # Fixed SSM parameter reference
         TaskDefinitionArn: !If
           - IsDoubleContainer
           - !GetAtt FunctionManagerTaskDefDoubleStack.Outputs.TaskDefinitionArn
           - !GetAtt FunctionManagerTaskDefSingleStack.Outputs.TaskDefinitionArn
         TargetGroupArn: !GetAtt FunctionManagerTargetGroupStack.Outputs.TargetGroupArn
-        ContainerName: !If [IsDoubleContainer, 'nginx', 'rails']
-        ContainerPort: !If [IsDoubleContainer, '80', '3000']
+        ContainerName: !If 
+          - IsDoubleContainer 
+          - 'nginx' 
+          - 'rails'
+        ContainerPort: !If 
+          - IsDoubleContainer 
+          - '80' 
+          - '3000'
         DesiredCount: 1
         ScalingMinCapacity: 1
         ScalingMaxCapacity: 4
@@ -142,9 +102,8 @@ Resources:
         CPUScaleInThreshold: 30
         MemoryScaleOutThreshold: 75
         MemoryScaleInThreshold: 40
-        VpcSubnetIds: 'subnet-0eabd0999a1e9300b,subnet-03f8f438576701c78'     
-        SecurityGroupIds: 'sg-0ea8e713217941fe4'  
- 
+        VpcSubnetIds: !Sub '{{resolve:ssm:/cfn/vpc/PrivateSubnet1:1}},{{resolve:ssm:/cfn/vpc/PrivateSubnet2:1}}'  # Fixed SSM list reference
+        SecurityGroupIds: !Sub '{{resolve:ssm:/cfn/${Environment}/alb/SecurityGroupId:1}}'  # Fixed SSM reference
       Tags:
         - Key: Name
           Value: !Sub '${Environment}-${AppName}-service'
@@ -152,5 +111,3 @@ Resources:
           Value: !Ref Environment
         - Key: ManagedBy
           Value: CloudFormation
-          
- # ────────────────────────────────────────────────────────────────────────────────────────────
