@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   ci:
-    uses: ops-migration/central-shared-workflow/.github/workflows/ci-workflow.yml@main
+    uses: ops-migration/github_shared_templates/.github/workflows/ci-workflow.yml@main
     with:
       ecr-repository: "dev-function-manager"
       aws-region: "us-east-1"
