@@ -28,7 +28,7 @@ Conditions:
   IsDoubleContainer: !Not [!Equals [!Ref NginxImage, '']]
   IsSingleContainer: !Not [!Condition IsDoubleContainer]
 
-# ─── Resources ────────────────────────────────────────────────────────────────
+# ─── Resources ──────────────────────────────────────────────────────────────
 Resources:
   # ─────── Task Definition Double stack ─────────────────────────────
   FunctionManagerTaskDefDoubleStack:
