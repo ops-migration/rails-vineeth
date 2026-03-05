@@ -30,15 +30,6 @@ Conditions:
 
 # ─── Resources ────────────────────────────────────────────────────────────────
 Resources:
-  # Missing dependency - Add this first
-  FunctionManagerTargetGroupStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub '${TemplateBucketUrl}/target-group.yaml'  # Adjust path as needed
-      Parameters:
-        Environment: !Ref Environment
-        VpcId: '{{resolve:ssm:/cfn/vpc/VpcId}}'
-        ALBHTTPListenerArn: !Sub '{{resolve:ssm:/cfn/${Environment}/alb/HTTPListenerArn}}'
   # ─────── Task Definition Double stack ─────────────────────────────
   FunctionManagerTaskDefDoubleStack:
     Type: AWS::CloudFormation::Stack
@@ -82,7 +73,7 @@ Resources:
       Parameters:
         Environment: !Ref Environment
         AppName: !Ref AppName
-        ECSClusterName: !Sub '{{resolve:ssm:/cfn/${Environment}/ecs/ClusterName:1}}'  # Fixed SSM parameter reference
+        ECSClusterName: !Sub '{{resolve:ssm:/cfn/${Environment}/ecs/ClusterName}}'  # Fixed SSM parameter reference
         TaskDefinitionArn: !If
           - IsDoubleContainer
           - !GetAtt FunctionManagerTaskDefDoubleStack.Outputs.TaskDefinitionArn
@@ -104,7 +95,7 @@ Resources:
         MemoryScaleOutThreshold: 75
         MemoryScaleInThreshold: 40
         VpcSubnetIds: !Sub '{{resolve:ssm:/cfn/vpc/PrivateSubnet1}},{{resolve:ssm:/cfn/vpc/PrivateSubnet2}}'  # Fixed SSM list reference
-        SecurityGroupIds: !Sub '{{resolve:ssm:/cfn/${Environment}/alb/SecurityGroupId:1}}'  # Fixed SSM reference
+        SecurityGroupIds: !Sub '{{resolve:ssm:/cfn/${Environment}/ecs/InstanceSecurityGroupId}}  # Fixed SSM reference
 
       Tags:
         - Key: Name
