@@ -95,7 +95,7 @@ Resources:
         MemoryScaleOutThreshold: 75
         MemoryScaleInThreshold: 40
         VpcSubnetIds: !Sub '{{resolve:ssm:/cfn/vpc/PrivateSubnet1}},{{resolve:ssm:/cfn/vpc/PrivateSubnet2}}'  # Fixed SSM list reference
-        SecurityGroupIds: !Sub '{{resolve:ssm:/cfn/${Environment}/ecs/InstanceSecurityGroupId}}  # Fixed SSM reference
+        SecurityGroupIds: !Sub '{{resolve:ssm:/cfn/${Environment}/ecs/InstanceSecurityGroupId}}'  # Fixed SSM reference
 
       Tags:
         - Key: Name
