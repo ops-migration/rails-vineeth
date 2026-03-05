@@ -11,8 +11,6 @@ Parameters:
     Default: function-manager
   RailsImage:
     Type: String
-  NginxImage:
-    Type: String
   CommitHash:
     Type: String
   TemplateBucketUrl:
