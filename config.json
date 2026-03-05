@@ -1,4 +1,4 @@
 {
-  "rails_image_uri": "106237071060.dkr.ecr.us-east-1.amazonaws.com/dev-function-manager:af53070ef1d0642691d457a264929561ceecb1b9",
-  "commit_hash": "af53070ef1d0642691d457a264929561ceecb1b9"
+  "rails_image_uri": "106237071060.dkr.ecr.us-east-1.amazonaws.com/dev-function-manager:010fc782ecc20347130bc53f21025694a66fef1f",
+  "commit_hash": "010fc782ecc20347130bc53f21025694a66fef1f"
 }
