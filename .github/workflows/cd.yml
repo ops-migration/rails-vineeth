@@ -11,6 +11,6 @@ permissions:
   
 jobs:
   deploy-qa:
-    uses: ops-migration/central-shared-workflow/.github/workflows/cd-workflow.yml@main
+    uses: ops-migration/github_shared_templates/.github/workflows/cd-workflow.yml@main
     with:
       cf-stack-name: "dev-stack"
