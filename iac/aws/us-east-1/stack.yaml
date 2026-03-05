@@ -104,6 +104,7 @@ Resources:
         MemoryScaleInThreshold: 40
         VpcSubnetIds: !Sub '{{resolve:ssm:/cfn/vpc/PrivateSubnet1:1}},{{resolve:ssm:/cfn/vpc/PrivateSubnet2:1}}'  # Fixed SSM list reference
         SecurityGroupIds: !Sub '{{resolve:ssm:/cfn/${Environment}/alb/SecurityGroupId:1}}'  # Fixed SSM reference
+
       Tags:
         - Key: Name
           Value: !Sub '${Environment}-${AppName}-service'
