@@ -19,11 +19,8 @@ jobs:
   ci:
     uses: ops-migration/central-shared-workflow/.github/workflows/ci-workflow.yml@main
     with:
-      ecr-repository: "app-1"
+      ecr-repository: "dev-function-manager"
       aws-region: "us-east-1"
       target-branch: "dev-i"
-      sonar-enabled: true
     secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
