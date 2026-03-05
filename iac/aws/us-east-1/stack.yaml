@@ -67,7 +67,6 @@ Resources:
   # ─────── ECS Service ──────────────────────────────────────────────
   FunctionManagerECSServiceStack:
     Type: AWS::CloudFormation::Stack
-    DependsOn: FunctionManagerTargetGroupStack  # Fixed missing dependency
     Properties:
       TemplateURL: !Sub '${TemplateBucketUrl}/ecs-service.yaml'
       Parameters:
