@@ -39,5 +39,7 @@ RUN useradd rails --create-home --shell /bin/bash && \
 USER rails:rails
 
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
+
 EXPOSE 80
+
 CMD ["bundle", "exec", "thrust", "./bin/rails", "server"]
