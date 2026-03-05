@@ -11,6 +11,9 @@ Parameters:
     Default: function-manager
   RailsImage:
     Type: String
+  NginxImage:
+    Type: String
+    Default: ''  # Empty default to allow single container option
   CommitHash:
     Type: String
   TemplateBucketUrl:
