@@ -37,8 +37,8 @@ Resources:
       TemplateURL: !Sub '${TemplateBucketUrl}/target-group.yaml'  # Adjust path as needed
       Parameters:
         Environment: !Ref Environment
-        AppName: !Ref AppName
-
+        VpcId: '{{resolve:ssm:/cfn/vpc/VpcId}}'
+        ALBHTTPListenerArn: !Sub '{{resolve:ssm:/cfn/${Environment}/alb/HTTPListenerArn}}'
   # ─────── Task Definition Double stack ─────────────────────────────
   FunctionManagerTaskDefDoubleStack:
     Type: AWS::CloudFormation::Stack
@@ -54,9 +54,9 @@ Resources:
         NginxContainerPort: 80
         TaskCPU: 512
         TaskMemory: 1024
-        TaskRoleArn: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cfn/${Environment}/iam/${AppName}/TaskRoleArn'  # Fixed SSM reference
-        ExecutionRoleArn: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cfn/${Environment}/ecs/TaskExecutionRoleArn'  # Fixed incomplete value
-
+        TaskRoleArn: !Sub '{{resolve:ssm:/cfn/${Environment}/iam/${AppName}/TaskRoleArn}}'
+        ExecutionRoleArn: !Sub '{{resolve:ssm:/cfn/${Environment}/ecs/TaskExecutionRoleArn}}'
+        
   # ─────── Task Definition Single stack ─────────────────────────────
   FunctionManagerTaskDefSingleStack:
     Type: AWS::CloudFormation::Stack
@@ -70,8 +70,8 @@ Resources:
         RailsContainerPort: 3000
         TaskCPU: 512
         TaskMemory: 1024
-        TaskRoleArn: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cfn/${Environment}/iam/${AppName}/TaskRoleArn'  # Fixed SSM reference
-        ExecutionRoleArn: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cfn/${Environment}/ecs/TaskExecutionRoleArn'  # Fixed SSM reference format
+        TaskRoleArn: !Sub '{{resolve:ssm:/cfn/${Environment}/iam/${AppName}/TaskRoleArn}}'
+        ExecutionRoleArn: !Sub '{{resolve:ssm:/cfn/${Environment}/ecs/TaskExecutionRoleArn}}'
 
   # ─────── ECS Service ──────────────────────────────────────────────
   FunctionManagerECSServiceStack:
@@ -87,7 +87,7 @@ Resources:
           - IsDoubleContainer
           - !GetAtt FunctionManagerTaskDefDoubleStack.Outputs.TaskDefinitionArn
           - !GetAtt FunctionManagerTaskDefSingleStack.Outputs.TaskDefinitionArn
-        TargetGroupArn: !GetAtt FunctionManagerTargetGroupStack.Outputs.TargetGroupArn
+        TargetGroupArn: !Sub '{{resolve:ssm:/cfn/${Environment}/FunctionManager/elb/TargetGroupArn}}'
         ContainerName: !If 
           - IsDoubleContainer 
           - 'nginx' 
@@ -103,7 +103,7 @@ Resources:
         CPUScaleInThreshold: 30
         MemoryScaleOutThreshold: 75
         MemoryScaleInThreshold: 40
-        VpcSubnetIds: !Sub '{{resolve:ssm:/cfn/vpc/PrivateSubnet1:1}},{{resolve:ssm:/cfn/vpc/PrivateSubnet2:1}}'  # Fixed SSM list reference
+        VpcSubnetIds: !Sub '{{resolve:ssm:/cfn/vpc/PrivateSubnet1}},{{resolve:ssm:/cfn/vpc/PrivateSubnet2}}'  # Fixed SSM list reference
         SecurityGroupIds: !Sub '{{resolve:ssm:/cfn/${Environment}/alb/SecurityGroupId:1}}'  # Fixed SSM reference
 
       Tags:
