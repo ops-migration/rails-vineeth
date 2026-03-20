@@ -1,0 +1,13 @@
+name: Run Every 5 Minutes
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/6 * * * *'
+
+jobs:
+  print:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Statement
+        run: echo "Hello, this runs every 5 minutes!"
