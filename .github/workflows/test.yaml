@@ -1,0 +1,12 @@
+name: Run Every Minute
+
+on:
+  schedule:
+    - cron: '* * * * *'
+
+jobs:
+  print:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Statement
+        run: echo "Hello, this runs every minute!"
